@@ -43,6 +43,15 @@ router.get("/:recipeId", async (req, res, next) => {
   }
 });
 
+router.get("/:recipeId/Information", async(req, res, next) => {
+  try {
+    const recipe = await recipes_utils.getRecipeDetailsExtended(req.params.recipeId);
+    res.send(recipe);
+  } catch (error){
+    next(error);
+  }
+})
+
 
 
 module.exports = router;
