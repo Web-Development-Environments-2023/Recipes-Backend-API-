@@ -27,19 +27,14 @@ app.use(express.urlencoded({ extended: false })); // parse application/x-www-for
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 //local:
 app.use(express.static(path.join(__dirname, "dist")));
-//remote:
-// app.use(express.static(path.join(__dirname, '../assignment-3-3-basic/dist')));
+
 app.get("/",function(req,res)
 { 
-  //remote: 
-  // res.sendFile(path.join(__dirname, '../assignment-3-3-basic/dist/index.html'));
-  //local:
+
   res.sendFile(__dirname+"/index.html");
 
 });
 
-// app.use(cors());
-// app.options("*", cors());
 
 const corsConfig = {
   origin: true,
