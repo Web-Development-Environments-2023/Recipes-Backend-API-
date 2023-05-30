@@ -32,7 +32,7 @@ router.post("/Register", async (req, res, next) => {
     );
     await DButils.execQuery(
       `INSERT INTO users VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
-      '${user_details.country}', '${hash_password}', '${user_details.email}' , '${user_details.profilePic}')`
+      '${user_details.country}', '${hash_password}', '${user_details.email}' , '${user_details.profilePic})`
     );
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
@@ -55,13 +55,12 @@ router.post("/Login", async (req, res, next) => {
       )
     )[0];
 
-    if (!bcrypt.compareSync(req.body.password, user.password)) {
+    if (!bcrypt.compareSync(req.body.password, user.pwd)) {
       throw { status: 401, message: "Username or Password incorrect" };
     }
 
     // Set cookie
-    req.session.user_id = user.user_id;
-
+    req.session.username = user.username;
     // return cookie
     res.status(200).send({ message: "login succeeded", success: true });
   } catch (error) {

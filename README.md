@@ -1,9 +1,11 @@
 ### Development-Backend branch create
 
 #### TODO list
-- [] Connect the database commands to the webserver.
-- [] Add database log of user actions: 3 last search results, favorite recipes, recentaly watched.
-- [] API update
+- [x] Connect the database commands to the webserver.
+ [] Add database log of user actions: 3 last search results, favorite recipes, recentaly watched.
+  [] API update
+<br>
+
 - - Search request contain the fields -  query number, cuisine, diet, intolerances, https://spoonacular.com/food-api/docs, <b>3.2 page 5 end</b>
   - Returned Object from search id: id,
         title: title,
@@ -16,8 +18,8 @@
         extendedIngredients: extendedIngredients,
         insteructions: steps,
         popularity: spoonacularScore,
-
-    - Add user arguments for '/Register' route, POST command
+        
+  - Add user arguments for '/Register' route, POST command
       username VARCHAR(8) NOT NULL,
       firstname VARCHAR(128) NOT NULL, 
       lastname VARCHAR(128) NOT NULL,
@@ -29,12 +31,14 @@
                                     
 Setup of database including env required field for connection
 Register and Login working,
-TOCOMPLETE
-How to recive and send cookie with provided code at main.js
+
+## Started
+Cookie get and add to user session, how to store and recgonize current user that 
+Saving Recipe\Favorites\Recentaly watched.
 
 ### Tables
 - users
 - session
 - favorite
 - recipes
-- 
+  
