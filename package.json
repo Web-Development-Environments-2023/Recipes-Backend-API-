@@ -1,13 +1,13 @@
 {
   "name": "assignment-3.2",
   "version": "1.0.0",
-  "description": "",
+  "description": "- Connect the database commands to the webserver.\r - Add database log of user actions: 3 last search results, favorite recipes, recentaly watched.\r - API update\r - - Search request contain the fields -  query number, cuisine, diet, intolerances, https://spoonacular.com/food-api/docs, <b>3.2 page 5 end</b>\r   - Returned Object from search id: id,\r         title: title,\r         readyInMinutes: readyInMinutes,\r         image: image,\r         popularity: aggregateLikes,\r         vegan: vegan,\r         vegetarian: vegetarian,\r         glutenFree: glutenFree,\r         extendedIngredients: extendedIngredients,\r         insteructions: steps,\r         popularity: spoonacularScore,",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Eden & Shelley",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.4.0",
@@ -22,10 +22,19 @@
     "express-validator": "^6.4.1",
     "morgan": "^1.10.0",
     "mssql": "^6.2.0",
+    "mysql2": "^3.3.3",
     "nodemon": "^2.0.4",
     "pg": "^8.2.1"
   },
   "devDependencies": {
     "mysql": "^2.18.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Web-Development-Environments-2023/assignment3_2-315401885_315811133.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Web-Development-Environments-2023/assignment3_2-315401885_315811133/issues"
+  },
+  "homepage": "https://github.com/Web-Development-Environments-2023/assignment3_2-315401885_315811133#readme"
 }
