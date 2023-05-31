@@ -2,11 +2,11 @@
 
 #### TODO list
 - [x] Connect the database commands to the webserver.
- [] Add database log of user actions: 3 last search results, favorite recipes, recentaly watched.
-  [] API update
+- [x] Add database log of user actions: 3 last search results, favorite recipes, recentaly watched.
+- [] API update
 <br>
 
-- - Search request contain the fields -  query number, cuisine, diet, intolerances, https://spoonacular.com/food-api/docs, <b>3.2 page 5 end</b>
+- [x] Search request contain the fields -  query number, cuisine, diet, intolerances, https://spoonacular.com/food-api/docs, <b>3.2 page 5 end</b>
   - Returned Object from search id: id,
         title: title,
         readyInMinutes: readyInMinutes,
@@ -33,12 +33,22 @@ Setup of database including env required field for connection
 Register and Login working,
 
 ## Started
-Cookie get and add to user session, how to store and recgonize current user that 
-Saving Recipe\Favorites\Recentaly watched.
+<del>Cookie get and add to user session, how to store and recgonize current user that 
+Saving Recipe\Favorites\Recentaly watched.</del>
 
-### Tables
+### Database supported use-cases
+1)  As User, I want to like recipes, so that i can access them easily.
+2)  As User, I want my clicked recipes kept history, so that i can return to to continue the recipe quickly.  
+3)  As User, I want to search recipes with free text and categories, so that i can make my prefered recipe type.
+4)  
+  
+
+### Database
+recipesdb - info user-root, password-local user password
+#### Tables
 - users
-- session
-- favorite
 - recipes
+- searchhistory
+- watchedrecipes
+- favoritesrecipes
   

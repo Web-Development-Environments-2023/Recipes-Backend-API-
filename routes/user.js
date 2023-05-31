@@ -9,10 +9,10 @@ const recipes = require("./recipes");
  * Authenticate all incoming requests by middleware
  */
 router.use(async function (req, res, next) {
-  if (req.session && req.session.username) {
+  if (req.session && req.session.user_id) {
     DButils.execQuery("SELECT username FROM users").then((users) => {
-      if (users.find((x) => x.username === req.session.username)) {
-        req.username = req.session.username;
+      if (users.find((x) => x.user_id === req.session.user_id)) {
+        req.user_id = req.session.user_id;
         next();
       }
     }).catch(err => next(err));
@@ -27,9 +27,15 @@ router.use(async function (req, res, next) {
  */
 router.post('/favorites', async (req,res,next) => {
   try{
-    const username = req.session.username;
+    const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
-    await user_utils.markAsFavorite(username,recipe_id);
+    if( recipe_id == null){
+      throw {status: 400, message: "Recipe ID to add is missing"}
+    }
+    await user_utils.markAsFavorite(user_id,recipe_id)
+    .catch(error => {
+      
+    });
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
     next(error);
@@ -41,11 +47,14 @@ router.post('/favorites', async (req,res,next) => {
  */
 router.get('/favorites', async (req,res,next) => {
   try{
-    const username = req.session.username;
+    const user_id = req.session.user_id;
     let favorite_recipes = {};
-    const recipes_id = await user_utils.getFavoriteRecipes(username);
+    const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
+    if(recipes_id.length == 0) {
+      res.status(204).send("Yet to add Favorites recipes");
+    }
     const results = await recipe_utils.getRecipesPreview(recipes_id_array);
     res.status(200).send(results);
   } catch(error){
@@ -53,13 +62,14 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
+
 router.get("/recipes/:recipeId/Information", async (req, res, next) => {
   try
   {
-    const username = req.session.username;
+    const user_id = req.session.user_id;
     const recipe_id = req.params.recipeId;
-    await user_utils.markAsWatchedRecipes(username, recipe_id);
-    console.log("Recipe succesfully added to WatchedRecieps database " + recipe_id + "  " + username);
+    await user_utils.markAsWatchedRecipes(user_id, recipe_id);
+    console.log("Recipe succesfully added to WatchedRecieps database " + recipe_id + "  " + user_id);
     next();
   }
   catch(error) {
@@ -69,7 +79,7 @@ router.get("/recipes/:recipeId/Information", async (req, res, next) => {
 
 router.get("/recipes/search", async (req, res, next) => {
   try {
-    const username = req.session.username;
+    const user_id = req.session.user_id;
     const search_params = {
       query: req.query.query,
       number: req.query.number,
@@ -77,9 +87,9 @@ router.get("/recipes/search", async (req, res, next) => {
       diet: req.query.diet,
       intolerances: req.query.intolerances
     }
-    await user_utils.saveSearchRequest(username, search_params);
-    console.log("Search succesfully added to searchhistory database " + username + " " + JSON.stringify(search_params));
-    next();
+    await user_utils.saveSearchRequest(user_id, search_params);
+    const search_results = await recipe_utils.getRecipesSearch(search_params);
+    res.status(200).send(search_results);
   } catch (error) {
       next(error);
   }

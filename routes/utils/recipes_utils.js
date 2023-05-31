@@ -10,54 +10,75 @@ const api_domain = "https://api.spoonacular.com/recipes";
 
 
 async function getRecipeInformation(recipe_id) {
-    return await axios.get(`${api_domain}/${recipe_id}/information`, {
-        params: {
-            includeNutrition: false,
-            apiKey: process.env.api_token
-        }
-    });
+    try {
+            return await axios.get(`${api_domain}/${recipe_id}/information`, {
+            params: {
+                includeNutrition: false,
+                apiKey: process.env.api_token
+            }
+        });
+    }  catch(error){
+         throw { status: error.response.data.code, message: error.response.data.message};
+    };
 }
+  
 
 
 async function getRandomInformation(number){
-    return axios.get(`${api_domain}/random`, {
-        params: {
-            apiKey: process.env.api_token,
-            number: number,
-        }
-    });
+    try{
+        return axios.get(`${api_domain}/random`, {
+            params: {
+                apiKey: process.env.api_token,
+                number: number,
+            }
+        });
+    } catch(error){
+        throw { status: error.response.data.code, message: error.response.data.message};
+    };
 }
 
 async function getRecipeInformationBulk(recipes_ids){
-    return await axios.get(`${api_domain}/informationBulk`, {
-        params: {
-            apiKey: process.env.api_token,
-            ids: recipes_ids.toString(),
-        }
-    })
+    try{
+        return await axios.get(`${api_domain}/informationBulk`, {
+            params: {
+                apiKey: process.env.api_token,
+                ids: recipes_ids.toString(),
+            }
+        });
+    }catch(error){
+        throw { status: error.response.data.code, message: error.response.data.message};
+    }
 }
 
 async function getRecipeInstructions(recipes_id, breakdown){
-    return await axios.get(`${api_domain}/${recipes_id}/analyzedInstructions`, {
-        params: {
-            apiKey: process.env.api_token,
-            id: recipes_id,
-            stepBreakdown: breakdown,
-        }
-    })
+    try{
+        return await axios.get(`${api_domain}/${recipes_id}/analyzedInstructions`, {
+            params: {
+                apiKey: process.env.api_token,
+                id: recipes_id,
+                stepBreakdown: breakdown,
+            }
+        });
+    }catch(error){
+        throw { status: error.response.data.code, message: error.response.data.message};
+    }
 }
 
 async function getSearchInformation(params){
-    return await axios.get(`${api_domain}/complexSearch`, {
-        params: {
-            apiKey: process.env.api_token,
-            query: params.query,
-            number:params.number,
-            cuisine: params.cuisine,
-            diet: params.diet,
-            intolerances: params.intolerances
-        }
-    })
+    try{
+        return await axios.get(`${api_domain}/complexSearch`, {
+            params: {
+                apiKey: process.env.api_token,
+                query: params.query,
+                number:params.number,
+                cuisine: params.cuisine,
+                diet: params.diet,
+                intolerances: params.intolerances
+            }
+        });
+    }catch(error){
+        throw { status: error.response.data.code, message: error.response.data.message};
+    }
 }
 
 async function getRecipesSearch(params){
@@ -91,7 +112,6 @@ async function getRecipesPreview(recipes_ids_array){
     const recipes_info = await getRecipeInformationBulk(recipes_ids_array);
     return Array.from(recipes_info.data, recipe => getRecipePreview(recipe));
 }
-
 
 async function getRecipeDetailsExtended(recipe_id){
     const recipe_info = await getRecipeInformation(recipe_id);
