@@ -15,7 +15,6 @@ router.get("/random", async (req, res, next) => {
 })
 
 router.get("/search", async (req,res, next) => {
-  console.log(req.query);
   try{
     const search_results = await recipes_utils.getRecipesSearch({
       query: req.query.query,
@@ -24,7 +23,6 @@ router.get("/search", async (req,res, next) => {
       diet: req.query.diet,
       intolerances: req.query.intolerances
     });
-
     res.send(search_results);
   }catch (error) {
     next(error);

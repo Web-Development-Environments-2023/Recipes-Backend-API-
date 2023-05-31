@@ -18,6 +18,7 @@ async function getRecipeInformation(recipe_id) {
     });
 }
 
+
 async function getRandomInformation(number){
     return axios.get(`${api_domain}/random`, {
         params: {
@@ -62,12 +63,12 @@ async function getSearchInformation(params){
 async function getRecipesSearch(params){
     const response = await getSearchInformation(params);
     const results = response.data.results;
-    const results_extended = await getRecipeInformationBulk(Array.from(results, x => x.id));
-    return Array.from(results_extended.data, recipe => getRecipeDetailsExtended(recipe));
+    return await getRecipeDetailsExtended(Array.from(results, recipe => recipe.id));
+    // return Array.from(results_extended.data, recipe => getRecipeDetailsExtended(recipe));
 }
 
 async function getRecipeById(recipe_id) {
-    let recipe_info = await getRecipeDetails(recipe_id);
+    let recipe_info = await getRecipeInformation(recipe_id);
     return getRecipePreview(recipe_info.data);
 }
 
@@ -87,9 +88,8 @@ function getRecipePreview(recipe_info){
 }
 
 async function getRecipesPreview(recipes_ids_array){
-    return getRecipeInformationBulk(recipes_ids_array).then((recipes_info) => {
-        Array.from(recipes_info, recipe => getRecipePreview(recipe));
-    }).catch(error => next(error));
+    const recipes_info = await getRecipeInformationBulk(recipes_ids_array);
+    return Array.from(recipes_info.data, recipe => getRecipePreview(recipe));
 }
 
 

@@ -3,6 +3,7 @@ SELECT * FROM users;
 
 SELECT * FROM FavoriteRecipes;
 
+SELECT * FROM SearchHistory;
 
 -- Active: 1685369470042@@127.0.0.1@3306@recipesdb
 CREATE TABLE users (
@@ -59,7 +60,31 @@ CREATE TABLE session (
     session_cookie TEXT NOT NULL,
     session_time TIMESTAMP NOT NULL,
 
-    Foreign Key (username) REFERENCES users(username)
+    Foreign Key (username) REFERENCES users(username),
+    PRIMARY KEY (username)
 );
 
-DROP TABLE favorite;
+
+create TABLE WatchedRecipes (
+    user_id VARCHAR(8) NOT NULL,
+    recipe_id INTEGER NOT NULL,
+    ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    Foreign Key (user_id) REFERENCES users(username),
+    PRIMARY KEY (user_id, recipe_id)
+);
+
+create TABLE SearchHistory (
+    user_id VARCHAR(8) NOT NULL,
+    search_params VARCHAR(255),
+    ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    Foreign Key (user_id) REFERENCES users(username),
+    PRIMARY KEY (user_id)
+);
+
+
+DROP TABLE favoriterecipes;
+DROP TABLE WatchedRecipes;
+
+DROP TABLE SearchHistory;
