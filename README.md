@@ -40,8 +40,11 @@ Saving Recipe\Favorites\Recentaly watched.</del>
 1)  As User, I want to like recipes, so that i can access them easily.
 2)  As User, I want my clicked recipes kept history, so that i can return to to continue the recipe quickly.  
 3)  As User, I want to search recipes with free text and categories, so that i can make my prefered recipe type.
-4)  
-  
+
+#### TODO
+1) As User, i want to add recipes of my own, so i can store tradtional\family recipes.
+2) As User, i except the main menu to contain recently watched, favorites recipes, so that i can navigate easily to the most important stuff.
+3) 
 
 ### Database
 recipesdb - info user-root, password-local user password
