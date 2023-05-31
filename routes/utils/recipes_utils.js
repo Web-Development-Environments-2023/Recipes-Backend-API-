@@ -86,6 +86,12 @@ function getRecipePreview(recipe_info){
     }
 }
 
+async function getRecipesPreview(recipes_ids_array){
+    return getRecipeInformationBulk(recipes_ids_array).then((recipes_info) => {
+        Array.from(recipes_info, recipe => getRecipePreview(recipe));
+    }).catch(error => next(error));
+}
+
 
 async function getRecipeDetailsExtended(recipe_id){
     const recipe_info = await getRecipeInformation(recipe_id);
@@ -116,3 +122,5 @@ exports.getRandomInformation = getRandomInformation;
 exports.getRecipeDetails = getRecipeById;
 exports.getRecipesSearch = getRecipesSearch;
 exports.getRecipeDetailsExtended = getRecipeDetailsExtended;
+exports.getRecipePreview = getRecipePreview;
+exports.getRecipesPreview = getRecipesPreview;

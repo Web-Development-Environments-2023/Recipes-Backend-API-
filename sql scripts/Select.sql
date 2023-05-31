@@ -1,4 +1,7 @@
+-- Active: 1685369470042@@127.0.0.1@3306@recipesdb
 SELECT * FROM users;
+
+SELECT * FROM FavoriteRecipes;
 
 
 -- Active: 1685369470042@@127.0.0.1@3306@recipesdb
@@ -45,10 +48,10 @@ CREATE TABLE session (
     Foreign Key (username) REFERENCES users(username)
 );
 /* 2023-05-30 01:19:49 [59 ms] */ 
-CREATE TABLE favorite (
-    username  VARCHAR(8),
+CREATE TABLE FavoriteRecipes (
+    user_id  VARCHAR(8) NOT NULL,
     recipe_id INT NOT NULL,
-    Foreign Key (username) REFERENCES users(username)
+    Foreign Key (user_id) REFERENCES users(username)
 );
 /* 2023-05-30 01:20:07 [55 ms] */ 
 CREATE TABLE session (
@@ -58,3 +61,5 @@ CREATE TABLE session (
 
     Foreign Key (username) REFERENCES users(username)
 );
+
+DROP TABLE favorite;
