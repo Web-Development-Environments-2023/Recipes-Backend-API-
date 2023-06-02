@@ -120,16 +120,19 @@ async function getRecipeDetailsExtended(recipe_id){
     let steps = recipe_instructions.data;
 
     return {
-        id: id,
-        title: title,
-        readyInMinutes: readyInMinutes,
-        image: image,
-        popularity: aggregateLikes,
-        vegan: vegan,
-        vegetarian: vegetarian,
-        glutenFree: glutenFree,
+        recipePreview: {
+                id: id,
+                title: title,
+                readyInMinutes: readyInMinutes,
+                image: image,
+                popularity: aggregateLikes,
+                vegan: vegan,
+                vegetarian: vegetarian,
+                glutenFree: glutenFree,
+            },
+        
         extendedIngredients: extendedIngredients,
-        insteructions: steps,
+        Instructions: steps,
         popularity: spoonacularScore,
     }
 }

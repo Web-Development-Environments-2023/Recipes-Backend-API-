@@ -51,7 +51,7 @@ router.post("/Login", async (req, res, next) => {
     // check that the password is correct
     const user = (
       await DButils.execQuery(
-        `SELECT * FROM users WHERE user_id = '${req.body.user_id}'`
+        `SELECT * FROM users WHERE user_id = '${req.body.username}'`
       )
     )[0];
 
@@ -62,7 +62,7 @@ router.post("/Login", async (req, res, next) => {
     // Set cookie
     req.session.user_id = user.user_id;
     // return cookie
-    res.status(200).send({ message: "login succeeded", success: true });
+    res.status(200).send({ message: "login succeeded ", success: true });
   } catch (error) {
     next(error);
   }

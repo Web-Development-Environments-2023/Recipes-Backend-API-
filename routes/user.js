@@ -10,7 +10,7 @@ const recipes = require("./recipes");
  */
 router.use(async function (req, res, next) {
   if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT username FROM users").then((users) => {
+    DButils.execQuery("SELECT user_id FROM users").then((users) => {
       if (users.find((x) => x.user_id === req.session.user_id)) {
         req.user_id = req.session.user_id;
         next();
@@ -48,15 +48,15 @@ router.post('/favorites', async (req,res,next) => {
 router.get('/favorites', async (req,res,next) => {
   try{
     const user_id = req.session.user_id;
-    let favorite_recipes = {};
+    var favorite_recipes = [];
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    if(recipes_id.length == 0) {
+    recipes_id.map((element) => favorite_recipes.push(element.recipe_id)); //extracting the recipe ids into array
+    if(favorite_recipes.length == 0) {
       res.status(204).send("Yet to add Favorites recipes");
+    } else {
+      const results = await recipe_utils.getRecipesPreview(favorite_recipes);
+      res.status(200).send(results);
     }
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
-    res.status(200).send(results);
   } catch(error){
     next(error); 
   }
@@ -92,6 +92,28 @@ router.get("/recipes/search", async (req, res, next) => {
     res.status(200).send(search_results);
   } catch (error) {
       next(error);
+  }
+});
+
+router.get("recipes/create", async (req, res, next) => {
+  try{
+    const user_id = req.session.user_id;
+    const recipe_params = {
+      id: id,
+      title: title,
+      readyInMinutes: readyInMinutes,
+      image: image,
+      vegan: vegan,
+      vegetarian: vegetarian,
+      glutenFree: glutenFree,
+      extendedIngredients: extendedIngredients,
+      insteructions: steps,
+    }
+
+    const recipe_id = await user_utils.createRecipe(user_id, recipe_params);
+    res.status(200).send(recipe_id);
+  }catch(error ) {
+    next(error);
   }
 });
 

@@ -1,6 +1,7 @@
 ### Development-Backend branch create
 
 #### TODO list
+- [] API Tests
 - [x] Connect the database commands to the webserver.
 - [x] Add database log of user actions: 3 last search results, favorite recipes, recentaly watched.
 - [] API update
