@@ -24,6 +24,7 @@ function modifyResponseBody(req, res, next) {
     }).catch((error) => {
       console.error(`Could not get Recentaly watched: ${error}` );
     });
+    console.log(recipes);
     recipes.map(recipe => {      
       recipe.userData
        = {
@@ -67,7 +68,6 @@ router.use(async function (req, res, next) {
 
 router.use((req, res, next) => {
   // console.log('here', req.method, req.path);
-  console.log(typeof req.method, req.method)
   if(req.method === 'POST'){
     next();
   }else{
@@ -125,18 +125,20 @@ router.get('/favorites', async (req,res,next) => {
 router.get("/recipes/:recipeId/Information", async (req, res, next) => {
   try
   {
+    const user_id = req.session.user_id;
+    const recipe_id = req.params.recipeId;
+
     if(!req.params){
       throw {status: 400, message: "Missing, No params passed with request"};
     }
-    if(!recipeId || recipeId === ""){
+    if(!recipe_id || recipe_id === ""){
       throw {status: 400, message: "Missing, RecipeId param is empty"};
     }
-    if(recipeId.match(/^[0-9]+$/) == null){
+    if(recipe_id.match(/^[0-9]+$/) == null){
       throw {status: 400, message: "Invalid, Recipe id most be a number"};
     }
 
-    const user_id = req.session.user_id;
-    const recipe_id = req.params.recipeId;
+    
     await user_utils.markAsWatchedRecipes(user_id, recipe_id);
     console.log("Recipe succesfully added to WatchedRecieps database " + recipe_id + "  " + user_id);
     next();
@@ -170,7 +172,6 @@ router.get("/recipes/search", async (req, res, next) => {
 
 
 router.post("/recipes/create", async (req, res, next) => {
-  console.log('Create Recipe');
   try{
     const user_id = req.session.user_id;
     const {
@@ -189,6 +190,10 @@ router.post("/recipes/create", async (req, res, next) => {
           return element === undefined;
       })){
         throw {status: 400, message: 'Missing, most provide title, readyInMinutes, image'};
+      }
+
+      if(readyInMinutes.match(/^[0-9]+$/) == null){
+        throw {status: 400, message: "Invalid, readyInMinutes id most be a number"};
       }
 
       const recipe_params = {

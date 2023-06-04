@@ -10,7 +10,7 @@ const connection = await MySql.connection();
   } catch (err) {
     await connection.query("ROLLBACK");
     console.log('ROLLBACK at querySignUp', err);
-    throw err;
+    // throw {code: err.code, message: err.sqlMessage};
   } finally {
     await connection.release();
   }

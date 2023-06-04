@@ -23,16 +23,16 @@ CREATE TABLE users (
 
 CREATE TABLE recipes (
     user_id VARCHAR(8) NOT NULL,
-    recipe_id INT NOT NULL,
+    recipe_id INT NOT NULL ,
     title VARCHAR(255) NOT NULL,
     readyInMinutes DECIMAL NOT NULL,
-    img VARCHAR(255) ,
-    popularity DECIMAL NOT NULL,
-    vegan BOOLEAN NOT NULL,
-    vegetarian BOOLEAN NOT NULL,
-    glutenFree BOOLEAN NOT NULL,
-    extendedIngredients TEXT NOT NULL,
-    insteructions TEXT NOT NULL,
+    img VARCHAR(255),
+    popularity DECIMAL NULL DEFAULT 100,
+    vegan BOOLEAN  DEFAULT 0,
+    vegetarian BOOLEAN DEFAULT 0,
+    glutenFree BOOLEAN  DEFAULT 0,
+    extendedIngredients TEXT,
+    insteructions TEXT,
 
     Foreign Key (user_id) REFERENCES users(user_id),
     PRIMARY KEY(user_id, recipe_id)

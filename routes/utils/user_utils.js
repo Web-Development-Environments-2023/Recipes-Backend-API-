@@ -47,10 +47,16 @@ async function createRecipe(user_id, recipe_params){
     extendedIngredients,
     insteructions} = recipe_params;
 
+    const recipe_id = await DButils.execQuery(`SELECT COUNT(*) FROM recipes`)
+    .then((count) => {
+        return Object.values(count[0])[0];
+    });
+
+    console.log(recipe_id);
     await DButils.execQuery(`INSERT INTO 
-    recipes (user_id, title, readyInMinutes, img, popularity, vegan, vegetarian, glutenFree, extendedIngredients, insteructions)
+    recipes (user_id, recipe_id, title, readyInMinutes, img, vegan, vegetarian, glutenFree, extendedIngredients, insteructions)
     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [user_id, title, readyInMinutes, image, vegan, vegetarian, glutenFree, extendedIngredients, insteructions]
+    [user_id, recipe_id+1, title, readyInMinutes, image, vegan, vegetarian, glutenFree, extendedIngredients, insteructions]
     )
 }
 
