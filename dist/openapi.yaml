@@ -1,230 +1,707 @@
 openapi: 3.0.0
 info:
-  title: Recipes api
-  description: API for recipes project
-  version: 1.0.1
-servers:
-# local:
-- url: "http://127.0.0.1:3000"
-# remote:
-# - url: "http://132.72.65.211"
-  description: SwaggerHub API Auto Mocking hey
-tags:
-- name: Auth
-  description: All authentication related routes
-- name: Users
-  description: All the user's personal app info
-- name: Recipes
-  description: All reciepes general info
+  version: 2.0.1
+  title: 'Recipes'
+  description: 'API connected to a cooking site, Recpies Different commands: Adding recipes, getting recipes by id, array of recipes by category.'
+  termsOfService: 'https://cookingWebsiteMock.com/term-of-use'
+  contact:
+    name: Eden & Shelley
+    # url: cookingMock.com
+    email: edenabu@post.bgu.ac.il
+  license:
+    name: Cooking License
+    url: http://license.foo.com
+  
+# servers:
+#   - url: https://dev.cookingMock.com/v1
+#     description: Dev Server
+  
+#   - url: https://prod.cookingMock.com/v1
+#     description: Prod Server
 paths:
-  /register:
+  /Register:
     post:
-      tags:
-      - Auth
-      summary: A new user from the client is added to the server
-      description: A JSON object contains all the details about the new user.
+      description: Create new user to given schema, using post method to encupsloate user attributes. front-end constarints, username between 3-8 chars only, password length 5-10 contains atleast one speciel letter and number.
       requestBody:
-        description: Inventory item to add
-        content:
+        required: true
+        content: 
           application/json:
             schema:
+              type: object
               $ref: '#/components/schemas/User'
-        required: true
       responses:
-        "201":
-          description: A new user has been added
-        "400":
-          description: wrong input parameters
-  /login:
+        201:
+          description: User params correct and registered into the database
+        409:
+          description: Given username already exist, Please choose different username
+        
+                
+  
+  /Login:
     post:
-      tags:
-      - Auth
-      summary: Login an exist user
-      description: An exist user login to the system
+      description: Check if given user details exist in the database
       requestBody:
-        content:
+        required: true
+        description: A JSON object containing the login and password.
+        content: 
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginScheme'
-        required: true
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: JonDoe
+                password:
+                  type: string
+                  example: passwordEncrypted?
       responses:
-        "200":
-          description: |
-            User was found in the DB and authenitcated successfully. The session ID is returned in a cookie named `session`.  You should include this cookie in subsequent requests
+        200:
+          description: valid user details, Login succeeded, The session ID returned in cookie named `session`. you need to include this cookie in subsequent requests.
           headers:
             Set-Cookie:
-              style: simple
-              explode: false
               schema:
                 type: string
-                example: session=87s97sdhgf279293f8w0e9
-        "401":
-          description: Authentication failed
-  /logout:
-    post:
-      tags:
-        - Auth
-      summary: logout a user from the system and delete his cookie
-      responses:
-        "200":
-          description: "the user has ben successfully logged out"
+                example: session=abcde1234l Path:/;
+        401:
+          description: Username or password is incorrect
+          
+              
   /users/favorites:
     get:
-      tags:
-      - Users
-      summary: Return the favorite recipes that were saved by user
-      description: Get an array of recipes that were saved by a specific user
+      description: Obtain previously liked recipes by session user
+      security:
+        - cookieAuth: []
       responses:
-        "200":
-          description: data about the user's favorites recipes returned
+        200:
+          description: return array of json recipes, liked by the user
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/RecipesUser'
+        204:
+          description: User yet to like any recipes, therefore not recipes returned.
+        401:
+          description: User is not logged
+   
+    post:
+      description: Logged user liked new recipe, register to databasde with corsponding user
+      requestBody:
+        required: true
+        description: A JSON object containing the login and password.
+        content: 
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipeId:
+                  type: integer
+                  example: 106
+      responses:
+        200:
+          description: Liked recipe succesfully added to the database
+        400:
+          description: Recipe id missing the the request body
+
+              
+  /recipes:
+    get: 
+      description: Obtain information about recipes from the CookingSite Database.
+      parameters:
+        - name: bodyLimit
+          in: query
+          description: The amount of recipes returned
+          schema:
+            type: integer
+            minimum: 5
+            maximum: 15
+            example: 10
+        
+        - name: pageLimit
+          in: query
+          description: The pages to return recipes info
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+            example: 2
+        
+      responses:
+        200:
+          description: Succesful pull of recipes info
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/Recipes'
+    
+          
+  /recipes/{recipeId}:
+    get:
+      description: Obtain information about specific recipe - extended ingredients, steps of making the dish.
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          description: The ID of recipe
+          schema:
+            type: integer
+            example: 716429
+      responses:
+        200:
+          description: Success
+          content: 
+           application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/Recipe'
+  
+  /recipes/{recipeId}/information:
+    get: 
+      description: get the full insteruction of given recipe. built from different insteruction, each insteruction contains array of steps, each step
+        contain ingrident and equipment required for the step.
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          description: The ID of recipe
+          schema:
+            type: integer
+            example: 716429
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Recipe'
+                
+ 
+  /recipes/search:
+    get:
+      description: User may search according to key words and filters given.
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: number
+          schema:
+            type: integer
+          description: Amount of recipes returned to user values [5, 10 , 15]
+        - in: query
+          name: cuisine
+          schema:
+            type: string
+          description: Type of cuisine ['African', 'Asian', 'American' , etc]
+        - in: query
+          name: diet
+          schema:
+            type: string
+          description: type of diet ['Ketogenic', 'Gluten Free', etc]
+        - in: query
+          name: intolerances
+          schema:
+            type: string
+          description: add intolerances to food ingridents ['Dairy', 'Egg', 'Gluten']
+
+      responses:
+        200:
+          description: successful search, returned recipes with given number request params
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RecipePreview'
-        "401":
-          description: user is not authorized
-      security:
-      - cookieAuth: []
-    post:
-      tags:
-      - Users
-      summary: save recipe in the favorites list of a user
-      description: save recipe in the favorites list of a user
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reciepeId:
-                  type: string
-                  description: reciepe's id which the user saved
-                  example: 716429
-      responses:
-        "200":
-          description: The Recipe successfully saved as favorite
-        "401":
-          description: user is not authorized
-      security:
-      - cookieAuth: []
-  /recipes/{recipeId}:
+                  type: object
+                  $ref: '#/components/schemas/RecipeInformation'
+  
+  /recipes/random:
     get:
-      tags:
-      - Recipes
-      summary: Return preview details on recipe by his ID
-      description: Return preview details on recipe by his ID
+      description: Obtain information about randomm recipe - Recipe preview format
       parameters:
-      - name: recipeId
-        in: path
-        description: recipe's id
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
+        - in: query
+          name: number
+          schema:
+            type: integer
+          required: true
+          description: items to return, default 3
       responses:
-        "200":
-          description: data about the recipe
+        200:
+          description: Success
+          content: 
+           application/json:
+            schema:
+              $ref: '#/components/schemas/Recipes'
+                  
+  /users/recipes/search:
+    get:
+      description: Logged User may search according to key words and filters given.
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: number
+          schema:
+            type: integer
+          description: Amount of recipes returned to user values [5, 10 , 15]
+        - in: query
+          name: cuisine
+          schema:
+            type: string
+          description: Type of cuisine ['African', 'Asian', 'American' , etc]
+        - in: query
+          name: diet
+          schema:
+            type: string
+          description: type of diet ['Ketogenic', 'Gluten Free', etc]
+        - in: query
+          name: intolerances
+          schema:
+            type: string
+          description: add intolerances to food ingridents ['Dairy', 'Egg', 'Gluten']
+
+      responses:
+        200:
+          description: successful search, returned recipes with given number request params
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RecipePreview'
-        "404":
-          description: recipeId is not exists
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipesInformationUser'
+
+              
+  /users/recipes/{recipeId}/information:
+    get: 
+      description: get the full insteruction of given recipe. built from different insteruction, each insteruction contains array of steps, each step
+        contain ingrident and equipment required for the step.
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          description: The ID of recipe
+          schema:
+            type: integer
+            example: 716429
+      responses:
+        200:
+          description: Success, Return extended recipe with additional user data
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/RecipeInformationUser'
+                
+  /users/recipes/random:
+    get:
+      description: Obtain information about randomm recipe - Recipe preview format
+      parameters:
+        - in: query
+          name: number
+          schema:
+            type: integer
+          required: true
+          description: items to return, default 3
+      responses:
+        200:
+          description: Success, return random recipes previews, length = given params.number
+          content: 
+           application/json:
+            schema:
+              $ref: '#/components/schemas/RecipesUser'
+              
+  /users/create:
+    post:
+      description: Creates a new recipe in the database
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/Recipe'
+      responses:
+        200:
+          description: Successfully created a new recipe
+                 
+  /users/{id}:
+    get:
+      description: Obtain information about {id} user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of user
+          schema:
+            type: integer
+            example: 716429
+      responses:
+        200:
+          description: Success
+          content: 
+           application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/User'
+      
+    delete:
+      description: delete the user in given id
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: The ID of user
+        schema:
+          type: integer
+          example: 716429 
+      responses:
+        200:
+          description: User deleted Succssefully.
+                  
+                  
 components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+
   schemas:
     User:
+      description: Attributes related to a new user, required in the registerion form
       type: object
       properties:
         username:
-          maxLength: 8
-          minLength: 3
           type: string
-          description: username conatins between 3 to 8 letters only
-          example: my_name
+          example: JoeDoe
         firstname:
           type: string
-          description: user's first name
-          example: my_first_name
+          example: Joe
         lastname:
           type: string
-          description: user's last name
-          example: my_last_name
+          example: Doe
         country:
           type: string
-          description: user's country
-          example: Israel
+          example: US
         password:
-          maxLength: 10
-          minLength: 5
           type: string
-          description: password conatins between 5 to 10 chars, at least one of them
-            is a number and a special char
-          format: password
-          example: my_name@12
+          example: joeDoePassword
+        password confirmation:
+          type: string
+          example: joeDoePassword
         email:
-          pattern: email
           type: string
-          description: user's email
-          example: my_name12@gmail.com
-        # image-url:
-        #   pattern: URL
-        #   type: string
-        #   description: URL for the user's image
-        #   example: https://cloudinary.com/
-      description: Model containing user info
-    LoginScheme:
+          example: joeDoe.email@example.com
+        profilePic:
+          type: string
+          example: 🥳
+      
+    userData:
+      description: varoius data collected to describe the previous user actions at the site, for example favorites -> user added the given recipe to his collection.
       type: object
       properties:
-        username:
-          maxLength: 8
-          minLength: 3
+        favorite:
+          description: user added this recipe to his collection
+          type: boolean
+          example: true
+        watched:
+          description: the user previously watched the recipe, false mean the the user never clicked on this recipe.
+          type: boolean
+          example: false
+        
+    Recipes:
+      description: Array of Recipe info
+      type: array
+      items:
+        $ref: '#/components/schemas/Recipe'
+    
+    Recipe:
+      description: Modal containg recipe Info
+      type: object
+      properties:
+        id: 
+          type: integer
+          example: 716429
+        title:
           type: string
-          description: username conatins letters only
-        password:
-          maxLength: 10
-          minLength: 5
-          description: password conatins at least one number and one special char
-          format: password
-      example:
-        username: my_name
-        password: my_name@12
-    RecipePreview:
+          example: Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs
+        readyInMinutes:
+          type: number
+          example: 45.2
+        image:
+          type: string
+          example: https://spoonacular.com/recipeImages/716429-312x231.jpg
+        popularity:
+          type: integer
+          example: 420
+        vegan:
+          type: boolean
+          example: true
+        vegetarian:
+          type: boolean
+          example: false
+        glutenFree:
+          type: boolean
+          example: false
+ 
+        summary:
+          type: string
+          example: Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs might be a good recipe to expand your main course repertoire.  
+    
+    RecipesUser:
+      description: Array of Recipe info
+      type: array
+      items:
+        $ref: '#/components/schemas/RecipeUser'
+
+    RecipeUser:
+      description: Modal containg recipe Info & user data
+      type: object
+      properties:
+        id: 
+          type: integer
+          example: 716429
+        title:
+          type: string
+          example: Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs
+        readyInMinutes:
+          type: number
+          example: 45.2
+        image:
+          type: string
+          example: https://spoonacular.com/recipeImages/716429-312x231.jpg
+        popularity:
+          type: integer
+          example: 420
+        vegan:
+          type: boolean
+          example: true
+        vegetarian:
+          type: boolean
+          example: false
+        glutenFree:
+          type: boolean
+          example: false
+        userData:
+          type: object
+          $ref: '#/components/schemas/userData'
+        summary:
+          type: string
+          example: Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs might be a good recipe to expand your main course repertoire.  
+    
+    
+    RecipeInformation:
+      description: Full information about given recipe_id integer, include recipe Preview, extended ingredients, insteructions, popularity
       type: object
       properties:
         id:
           type: integer
-          description: recipe identifier
-          example: 102
-        title:
+          example: 51321
+        Preview:
+          $ref: '#/components/schemas/Recipe'
+        extendedIngredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        Instructions:
+          type: object
+          $ref: '#/components/schemas/Instructions'
+    
+    RecipesInformationUser:
+      description: Array of Recipe info
+      type: array
+      items:
+        $ref: '#/components/schemas/RecipeInformationUser'
+  
+    RecipeInformationUser:
+        description: Full information about given recipe_id integer, include recipe Preview, extended ingredients, insteructions, popularity
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 51321
+          Preview:
+            $ref: '#/components/schemas/Recipe'
+          extendedIngredients:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ingredient'
+          Instructions:
+            type: object
+            $ref: '#/components/schemas/Instructions'
+          userData:
+            type: object
+            $ref: '#/components/schemas/userData'
+            
+          
+    
+    Ingredient:
+      description: Ingredient to be used in the recipe, atomic
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1102047
+        aisle:
           type: string
-          description: recipe name
-          example: Simple Macaroni and Cheese
+          example: "Spices and Seasonings"
         image:
           type: string
-          description: recipe image
-          format: URL
-          example: https://spoonacular.com/recipeimages/655455-566x370.jpg
-        readyInMinutes:
+          example: salt-and-pepper.jpg
+        consistency:
+          type: string
+          example: solid
+        name:
+          type: string
+          example: Kosher salt and pepper
+        nameClean:
+          type: string
+          example: salt and pepper
+        Original: 
+          type: string
+          example: Kosher slat and freshly ground pepper
+        OriginalName:
+          type: string
+          example: Kosher slat and freshly ground pepper
+        amount:
+          type: number
+          example: 4.0
+        unit:
+          type: string
+          example: servings
+        meta:
+          type: array
+          items:
+            type: string
+            example: ["freshly ground"]
+        measures:
+          type: object
+          $ref: '#/components/schemas/Measure'
+
+    
+    Measure:
+      description: Product amount to be used in recipe give with metric/us units
+      type: object
+      properties:
+        metric:
+          type: object
+          properties:
+            amount:
+              type: number
+              example: 1.0
+            unit long:
+              type: string
+              example: "milliliters"
+            unit short:
+              type: string
+              example: ml
+        us:
+          type: object
+          properties:
+            amount:
+              type: number
+              example: 1.0
+            unit long:
+              type: string
+              example: cups
+            unit short:
+              type: string
+              example: cups
+              
+    Ingredient-compact:
+      description: Only required data for display of ingrident
+      type: object
+      properties:
+        id:
           type: integer
-          description: the time takes to make this recipe
-          example: 45
-        popularity:
-          type: integer
-          description: how many likes got this recipe
-          example: 5987
-        vegetarian:
-          type: boolean
-          description: indication if the recipe is vegetarian
-          example: false
-        vegan:
-          type: boolean
-          description: indication if the recipe is vegan
-          example: false
-        glutenFree:
-          type: boolean
-          description: indication if the recipe is gluten free
-          example: false
+          example: 18372
+        name:
+          type: string
+          example: pecans
+        localizedName:
+          type: string
+          example: pecans
+        image:
+          type: string
+          example: white-poweder.jpg
+        
   
+    Instructions:
+      description: Array of Instructions in making the meal according to the recipe, assume sorted by correct steps options.
+      type: array
+      items:
+        $ref: '#/components/schemas/Instruction'
+      
+    
+    Instruction:
+      description: Summary of what to do at the current Instruction of the recipe, built from array of Steps 
+      type: object
+      properties:
+        name:
+          type: string
+          example: Prep
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/Step'
+    
+    Step:
+      description: Spesific action to be made during the recipe
+      type: object
+      properties:
+        number:
+          type: integer
+          example: 2
+          
+        step:
+          type: string
+          example: Rub the steaks with the lime juice and salt and pepper. Let stand for 10 minutes.
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient-compact'
+        equipment:
+          type: array
+          items:
+            $ref: '#/components/schemas/Equipment'
+        length:
+          type: object
+          $ref: '#/components/schemas/length'
+        
+        
+    
+    
+    Equipment:
+      description: Cooking equipment to be used
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 404784
+        image:
+          type: string
+          example: oven.jpg
+        name: 
+          type: string
+          example: oven
+          
+    length:
+      description: duration to  finish the step, with given units
+      type: object
+      properties:
+        number:
+          type: integer
+          example: 10
+        unit:
+          type: string
+          example: minutes
+          
+
+        
