@@ -24,7 +24,7 @@ function modifyResponseBody(req, res, next) {
     }).catch((error) => {
       console.error(`Could not get Recentaly watched: ${error}` );
     });
-    recipes.forEach(recipe => {      
+    recipes.map(recipe => {      
       recipe.userData
        = {
         favorite: false,
@@ -32,11 +32,11 @@ function modifyResponseBody(req, res, next) {
       }
       
       if (favorites.find(fav => fav.recipe_id === recipe.id)) {
-        recipe.user.favorite = true;
+        recipe.userData.favorite = true;
       }
       
       if (watched.find(wat => wat.recipe_id === recipe.id)) {
-        recipe.user.watched = true;
+        recipe.userData.watched = true;
       }
       
     })
@@ -67,10 +67,12 @@ router.use(async function (req, res, next) {
 
 router.use((req, res, next) => {
   // console.log('here', req.method, req.path);
+  console.log(typeof req.method, req.method)
   if(req.method === 'POST'){
     next();
+  }else{
+    modifyResponseBody(req, res, next);
   }
-  modifyResponseBody(req, res, next);
 })
 
 /**
@@ -167,7 +169,8 @@ router.get("/recipes/search", async (req, res, next) => {
 });
 
 
-router.post("recipes/create", async (req, res, next) => {
+router.post("/recipes/create", async (req, res, next) => {
+  console.log('Create Recipe');
   try{
     const user_id = req.session.user_id;
     const {
