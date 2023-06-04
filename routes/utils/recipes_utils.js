@@ -28,6 +28,8 @@ async function getRandomInformation(number){
             apiKey: process.env.api_token,
             number: number,
         }
+    }).catch((error) => {
+        throw {status: error.response.status, message: error.response.statusText};
     });
 
 }
@@ -38,6 +40,8 @@ async function getRecipeInformationBulk(recipes_ids){
             apiKey: process.env.api_token,
             ids: recipes_ids.toString(),
         }
+    }).catch((error) => {
+        throw {status: error.response.status, message: error.response.statusText};
     });
 }
 
@@ -48,6 +52,8 @@ async function getRecipeInstructions(recipes_id, breakdown){
             id: recipes_id,
             stepBreakdown: breakdown,
         }
+    }).catch((error) => {
+        throw {status: error.response.status, message: error.response.statusText};
     });
 }
 
