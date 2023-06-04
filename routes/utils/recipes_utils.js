@@ -15,6 +15,8 @@ async function getRecipeInformation(recipe_id) {
             includeNutrition: false,
             apiKey: process.env.api_token
         }
+    }).catch((error) => {
+        throw {status: error.response.status, message: error.response.statusText};
     });
 }
   
@@ -71,10 +73,6 @@ async function getRecipesSearch(params){
     return results;
 }
 
-async function getRecipeById(recipe_id) {
-    let recipe_info = await getRecipeInformation(recipe_id);
-    return getRecipePreview(recipe_info.data);
-}
 
 function getRecipePreview(recipe_info){
     let { id, title, readyInMinutes, image, likes, vegan, vegetarian, glutenFree, summary} = recipe_info;
@@ -98,7 +96,7 @@ async function getRecipesPreview(recipes_ids_array){
 }
 
 function extractRecipeDetailsExtended(recipe_info){
-    let { extendedIngredients, analyzedInstructions} = recipe_info;
+    const {id, extendedIngredients, analyzedInstructions} = recipe_info;
 
     return {
         id: id,
@@ -128,7 +126,7 @@ async function getRecipesExtended(recipes_id_array){
 
 
 exports.getRandomInformation = getRandomInformation;
-exports.getRecipeDetails = getRecipeById;
+exports.getRecipeDetails = getRecipeInformation;
 exports.getRecipesSearch = getRecipesSearch;
 
 exports.getRecipePreview = getRecipePreview;

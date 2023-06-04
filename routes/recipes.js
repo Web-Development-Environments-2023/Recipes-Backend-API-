@@ -17,13 +17,20 @@ router.get("/random", async (req, res, next) => {
 
 router.get("/search", async (req,res, next) => {
   try{
-    const search_results = await recipes_utils.getRecipesSearch({
-      query: req.query.query,
-      number: req.query.number,
-      cuisine: req.query.cuisine,
-      diet: req.query.diet,
-      intolerances: req.query.intolerances
-    });
+    const {query, number, cuisine, diet, intolerances} = req.query;
+    const search_params = {
+      query: query,
+      number: number,
+      cuisine: cuisine,
+      diet: diet,
+      intolerances: intolerances
+    }
+
+    if(Object.values(search_params).every(param => param === undefined)){
+      throw {status: 204, message: 'No Content, search parameters are empty'};
+    }
+    const search_results = await recipes_utils.extractRecipeDetailsExtended(search_params);
+    console.log(search_results);
     
     const recipes = Array.from(search_results, recipe => recipes_utils.extendedRecipe(recipe));
     res.send(recipes);
@@ -36,19 +43,32 @@ router.get("/search", async (req,res, next) => {
 /**
  * This path returns a full details of a recipe by its id
  */
-router.get("/:recipeId", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
 
 router.get("/:recipeId/Information", async(req, res, next) => {
   try {
-    const recipe = await recipes_utils.getRecipeDetailsExtended(req.params.recipeId);
-    res.send(recipe);
+    const recipeId = req.params.recipeId;
+    if(!req.params){
+      throw {status: 400, message: "Missing, No params passed with request"};
+    }
+    if(!recipeId || recipeId === ""){
+      throw {status: 400, message: "Missing, RecipeId param is empty"};
+    }
+    if(recipeId.match(/^[0-9]+$/) == null){
+      throw {status: 400, message: "Invalid, Recipe id most be a number"};
+    }
+    const recipe_info = await recipes_utils.getRecipeDetails(recipeId)
+    .then((result) => {
+      const recipe = result.data;
+      if(recipe === undefined){
+        throw {status: 204, message: 'No Content, search parameters are empty'};
+      }
+
+      const recipe_extended = recipes_utils.extendedRecipe(recipe);
+      // console.log(recipe_extended);
+      return recipe_extended;
+    });
+
+    res.send(recipe_info);
   } catch (error){
     next(error);
   }

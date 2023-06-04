@@ -80,12 +80,17 @@ router.post('/favorites', async (req,res,next) => {
   try{
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
-    if( recipe_id == null){
-      throw {status: 400, message: "Recipe ID to add is missing"}
+    if(!req.body){
+      throw {status: 400, message: "Missing, No body passed with request"};
+    }
+    if(!recipe_id || recipe_id === ""){
+      throw {status: 400, message: "Missing, RecipeId is empty"};
+    }
+    if(recipe_id.match(/^[0-9]+$/) == null){
+      throw {status: 400, message: "Invalid, Recipe id most be a number"};
     }
     await user_utils.markAsFavorite(user_id,recipe_id)
-    .catch(error => {
-    });
+
 
     res.status(200).send("The Recipe successfully saved as favorite");
 
@@ -118,6 +123,16 @@ router.get('/favorites', async (req,res,next) => {
 router.get("/recipes/:recipeId/Information", async (req, res, next) => {
   try
   {
+    if(!req.params){
+      throw {status: 400, message: "Missing, No params passed with request"};
+    }
+    if(!recipeId || recipeId === ""){
+      throw {status: 400, message: "Missing, RecipeId param is empty"};
+    }
+    if(recipeId.match(/^[0-9]+$/) == null){
+      throw {status: 400, message: "Invalid, Recipe id most be a number"};
+    }
+
     const user_id = req.session.user_id;
     const recipe_id = req.params.recipeId;
     await user_utils.markAsWatchedRecipes(user_id, recipe_id);
@@ -139,6 +154,11 @@ router.get("/recipes/search", async (req, res, next) => {
       diet: req.query.diet,
       intolerances: req.query.intolerances
     }
+
+    if(Object.values(search_params).every(param => param === undefined)){
+      throw {status: 204, message: 'No Content, search parameters are empty'};
+    }
+
     await user_utils.saveSearchRequest(user_id, search_params);
     next();
   } catch (error) {
@@ -150,16 +170,34 @@ router.get("/recipes/search", async (req, res, next) => {
 router.post("recipes/create", async (req, res, next) => {
   try{
     const user_id = req.session.user_id;
-    const recipe_params = {
-      id: req.body.id,
-      title: req.body.title,
-      readyInMinutes: req.body.readyInMinutes,
-      image: req.body.image,
-      vegan: req.body.vegan,
-      vegetarian: req.body.vegetarian,
-      glutenFree: req.body.glutenFree,
-      extendedIngredients: req.body.extendedIngredients,
-      Instructions: req.body.steps,
+    const {
+      id, 
+      title, 
+      readyInMinutes, 
+      image, 
+      vegan, 
+      vegetarian, 
+      glutenFree, 
+      extendedIngredients, 
+      steps } = req.body;
+      
+      if([title, readyInMinutes, image]
+        .some((element, index, array) => {
+          return element === undefined;
+      })){
+        throw {status: 400, message: 'Missing, most provide title, readyInMinutes, image'};
+      }
+
+      const recipe_params = {
+      id: id,
+      title: title,
+      readyInMinutes: readyInMinutes,
+      image: image,
+      vegan: vegan,
+      vegetarian: vegetarian,
+      glutenFree: glutenFree,
+      extendedIngredients: extendedIngredients,
+      Instructions: steps,
     }
 
     const recipe_id = await user_utils.createRecipe(user_id, recipe_params);
