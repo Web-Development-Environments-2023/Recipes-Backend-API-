@@ -1,12 +1,12 @@
 ### Development-Backend branch create
 
 #### TODO list
-- [] API Tests
+- [ ] API Tests
 - [x] Connect the database commands to the webserver.
 - [x] Add database log of user actions: 3 last search results, favorite recipes, recentaly watched.
-- [] API update
-<br>
-
+- [x] API update
+- [ ] Test project working on bgu server
+- [ ] Add more consistency with handling recipes modifications, middlewares may be the solution
 - [x] Search request contain the fields -  query number, cuisine, diet, intolerances, https://spoonacular.com/food-api/docs, <b>3.2 page 5 end</b>
   - Returned Object from search id: id,
         title: title,
