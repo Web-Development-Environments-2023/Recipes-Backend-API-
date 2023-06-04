@@ -8,7 +8,7 @@ const api_domain = "https://api.spoonacular.com/recipes";
  * @param {*} recipes_info 
  */
 
-
+// Spooncular request, using axios, get single recipe full information
 async function getRecipeInformation(recipe_id) {
     return await axios.get(`${api_domain}/${recipe_id}/information`, {
         params: {
@@ -21,7 +21,7 @@ async function getRecipeInformation(recipe_id) {
 }
   
 
-
+// Spooncular request, using axios, get array of random recipes
 async function getRandomInformation(number){
     return axios.get(`${api_domain}/random`, {
         params: {
@@ -34,6 +34,7 @@ async function getRandomInformation(number){
 
 }
 
+// Spooncular request, using axios, get array of recipes.
 async function getRecipeInformationBulk(recipes_ids){
     return await axios.get(`${api_domain}/informationBulk`, {
         params: {
@@ -45,6 +46,7 @@ async function getRecipeInformationBulk(recipes_ids){
     });
 }
 
+// Spooncular request, with given recipe_id, return the coorspanding insteructions
 async function getRecipeInstructions(recipes_id, breakdown){
     return await axios.get(`${api_domain}/${recipes_id}/analyzedInstructions`, {
         params: {
@@ -57,6 +59,7 @@ async function getRecipeInstructions(recipes_id, breakdown){
     });
 }
 
+// Spooncular request, using the search feature, return array of recipes.
 async function getSearchInformation(params){
     return await axios.get(`${api_domain}/complexSearch`, {
         params: {
@@ -73,13 +76,14 @@ async function getSearchInformation(params){
     });
 }
 
+// Async function, to get recipe search results, and return only the valueable data of spooncular response.
 async function getRecipesSearch(params){
     const response = await getSearchInformation(params);
     const results = response.data.results;
     return results;
 }
 
-
+// Extract the relevant details for recipe preview.
 function getRecipePreview(recipe_info){
     let { id, title, readyInMinutes, image, likes, vegan, vegetarian, glutenFree, summary} = recipe_info;
 
@@ -96,11 +100,14 @@ function getRecipePreview(recipe_info){
     }
 }
 
+// Extract the relevant details, of many recipes, with given array recipe_ids, return array of recipes preview.
 async function getRecipesPreview(recipes_ids_array){
     const recipes_info = await getRecipeInformationBulk(recipes_ids_array);
     return Array.from(recipes_info.data, recipe => getRecipePreview(recipe));
 }
 
+
+// Extract Recipe extended details, including Ingredients and instructions.
 function extractRecipeDetailsExtended(recipe_info){
     const {id, extendedIngredients, analyzedInstructions} = recipe_info;
 
@@ -112,12 +119,14 @@ function extractRecipeDetailsExtended(recipe_info){
     }
 }
 
+// Full process handled in order to get extended recipe information.
 async function getRecipeExtended(recipe_id){
     const recipe_info = await getRecipeInformation(recipe_id);
     const recipe_instructions = await getRecipeInstructions(recipe_id, false);
     return extractRecipeDetailsExtended(recipe_info, recipe_instructions)
 }
 
+// Get the extended information, for given recipe_id array.
 async function getRecipesExtended(recipes_id_array){
     let promises = [];
     recipes_id_array.map((recipe_id) => {

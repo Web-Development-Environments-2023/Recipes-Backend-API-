@@ -58,10 +58,13 @@ paths:
         200:
           description: valid user details, Login succeeded, The session ID returned in cookie named `session`. you need to include this cookie in subsequent requests.
           headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: session=abcde1234l Path:/;
+            headers:
+              Set-Cookie:
+                style: simple
+                explode: false
+                schema:
+                  type: string
+                  example: session=abcde1234l Path:/;
         401:
           description: Username or password is incorrect
           

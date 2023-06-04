@@ -4,7 +4,7 @@ const recipes_utils = require("./utils/recipes_utils");
 
 router.get("/", (req, res) => res.send("im here"));
 
-200
+// Return Recipe preivew array, with given amout, req.query.number, default = 3
 router.get("/random", async (req, res, next) => {
   try {   
 
@@ -35,6 +35,9 @@ router.get("/random", async (req, res, next) => {
   }
 })
 
+// User pass query parameters in order to search, the parameters later
+// passed to spooncular api
+// Return Array of Recipes Extended
 router.get("/search", async (req,res, next) => {
   try{
     const {query, number, cuisine, diet, intolerances} = req.query;
@@ -65,7 +68,8 @@ router.get("/search", async (req,res, next) => {
 /**
  * This path returns a full details of a recipe by its id
  */
-
+// Return extended recipe details, according to given path argument recipeId, using
+// the spooncular api.
 router.get("/:recipeId/Information", async(req, res, next) => {
   try {
     const recipeId = req.params.recipeId;

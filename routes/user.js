@@ -6,6 +6,12 @@ const recipe_utils = require("./utils/recipes_utils");
 const recipes = require("./recipes");
 
 
+
+// Middleware overriding response.send, in-order to invoke actions
+// after the process of route./recipes is fulfiled
+// Iterate of recipes array, and get the information per user about
+// recentaly watched recipes and favorites recipes, and fo each recipe the details
+// inside the userData object. boolean values for favorites and watched.
 function modifyResponseBody(req, res, next) {
   const user_id = req.user_id;
   // Store the original send method
@@ -66,6 +72,9 @@ router.use(async function (req, res, next) {
   }
 });
 
+
+// Plug the middleware, for Authenticated users
+// excluding post method requests.
 router.use((req, res, next) => {
   // console.log('here', req.method, req.path);
   if(req.method === 'POST'){
@@ -121,7 +130,8 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
-
+// If user make a request about :recipeId/information, assumed the user clicked on the recipe
+// and register recipeId as watched. by adding to the data base table.
 router.get("/recipes/:recipeId/Information", async (req, res, next) => {
   try
   {
@@ -148,6 +158,9 @@ router.get("/recipes/:recipeId/Information", async (req, res, next) => {
   }
 })
 
+
+// If user make a request about search, 
+// and register search parameters, by adding to the data base table.
 router.get("/recipes/search", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -170,7 +183,8 @@ router.get("/recipes/search", async (req, res, next) => {
   }
 });
 
-
+// user allowed to create new recipes, assumed title, readInMinutes, image are required fields,
+// May changed in the next work, editing the required fields, and error checking.
 router.post("/recipes/create", async (req, res, next) => {
   try{
     const user_id = req.session.user_id;
