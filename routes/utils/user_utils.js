@@ -16,8 +16,8 @@ async function markAsWatchedRecipes(user_id, recipe_id){
 
 async function getWatchedRecipes(user_id, amount){
     const recipes_ids = await DButils.execQuery(`SELECT recipe_id from WatchedRecipes
-    WHERE user_id=${user_id} ORDER BY timestamp desc
-    LIMIT ${amount}`);
+    WHERE user_id='${user_id}' ORDER BY ts desc
+    `); // LIMIT ${amount}
     return recipes_ids;
 }
 
@@ -30,6 +30,10 @@ async function saveSearchRequest(user_id, search_params){
     // await DButils.execQuery(`INSERT INTO SearchHistory ( user_id, search_params)
     //     VALUES('${user_id}', '${JSON.stringify(search_params)}')
     //     ON DUPLICATE KEY UPDATE search_params = '${JSON.stringify(search_params)}'`);
+}
+
+async function getSearchHistory(user_id){
+    return await DButils.execQuery(`SELECT search_params FROM SearchHistory Where user_id=${user_id}`)
 }
 
 async function createRecipe(user_id, recipe_params){
@@ -48,9 +52,19 @@ async function createRecipe(user_id, recipe_params){
     VALUES('${user_id}', '${title}', ${readyInMinutes}, ${image}, ${vegan}, ${vegetarian}, ${glutenFree}, ${extendedIngredients}, ${insteructions})`)
 }
 
+async function getCreatedRecipes(user_id){
+    return await DButils.execQuery(`SELECT * FROM Recipes WHERE user_id = ${user_id}`);
+
+}
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
+
 exports.markAsWatchedRecipes = markAsWatchedRecipes;
 exports.getWatchedRecipes = getWatchedRecipes;
+
 exports.saveSearchRequest = saveSearchRequest;
+exports.getSearchHistory = getSearchHistory;
+
 exports.createRecipe = createRecipe;
+exports.getCreatedRecipes = getCreatedRecipes;

@@ -43,6 +43,7 @@ const query = (sql, binding) => {
     });
   });
 };
+
 module.exports = { pool, connection, query };
 
 

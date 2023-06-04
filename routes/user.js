@@ -5,6 +5,50 @@ const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
 const recipes = require("./recipes");
 
+
+function modifyResponseBody(req, res, next) {
+  const user_id = req.user_id;
+  // Store the original send method
+  const _send = res.send;
+  // Override it
+  res.send = async function (recipes) {
+    const favorites = await user_utils.getFavoriteRecipes(user_id, 'NULL').then((recipes) => {
+      console.log('favorites search complete');
+      return recipes;
+    }).catch((error) =>{
+      console.error(`Could not get favorites: ${error}`)
+    });
+    const watched = await user_utils.getWatchedRecipes(user_id, 'NULL').then((recipes) => {
+      console.log('watched search complete');
+      return recipes;
+    }).catch((error) => {
+      console.error(`Could not get Recentaly watched: ${error}` );
+    });
+    recipes.forEach(recipe => {      
+      recipe.userData
+       = {
+        favorite: false,
+        watched: false
+      }
+      
+      if (favorites.find(fav => fav.recipe_id === recipe.id)) {
+        recipe.user.favorite = true;
+      }
+      
+      if (watched.find(wat => wat.recipe_id === recipe.id)) {
+        recipe.user.watched = true;
+      }
+      
+    })
+    
+    // Reset it
+    res.send = _send;
+    // Actually send the response
+    res.send(recipes);
+  }
+  next();
+}
+
 /**
  * Authenticate all incoming requests by middleware
  */
@@ -21,6 +65,13 @@ router.use(async function (req, res, next) {
   }
 });
 
+router.use((req, res, next) => {
+  // console.log('here', req.method, req.path);
+  if(req.method === 'POST'){
+    next();
+  }
+  modifyResponseBody(req, res, next);
+})
 
 /**
  * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
@@ -34,9 +85,10 @@ router.post('/favorites', async (req,res,next) => {
     }
     await user_utils.markAsFavorite(user_id,recipe_id)
     .catch(error => {
-      
     });
+
     res.status(200).send("The Recipe successfully saved as favorite");
+
     } catch(error){
     next(error);
   }
@@ -88,26 +140,26 @@ router.get("/recipes/search", async (req, res, next) => {
       intolerances: req.query.intolerances
     }
     await user_utils.saveSearchRequest(user_id, search_params);
-    const search_results = await recipe_utils.getRecipesSearch(search_params);
-    res.status(200).send(search_results);
+    next();
   } catch (error) {
       next(error);
   }
 });
 
-router.get("recipes/create", async (req, res, next) => {
+
+router.post("recipes/create", async (req, res, next) => {
   try{
     const user_id = req.session.user_id;
     const recipe_params = {
-      id: id,
-      title: title,
-      readyInMinutes: readyInMinutes,
-      image: image,
-      vegan: vegan,
-      vegetarian: vegetarian,
-      glutenFree: glutenFree,
-      extendedIngredients: extendedIngredients,
-      insteructions: steps,
+      id: req.body.id,
+      title: req.body.title,
+      readyInMinutes: req.body.readyInMinutes,
+      image: req.body.image,
+      vegan: req.body.vegan,
+      vegetarian: req.body.vegetarian,
+      glutenFree: req.body.glutenFree,
+      extendedIngredients: req.body.extendedIngredients,
+      Instructions: req.body.steps,
     }
 
     const recipe_id = await user_utils.createRecipe(user_id, recipe_params);
@@ -117,8 +169,9 @@ router.get("recipes/create", async (req, res, next) => {
   }
 });
 
+
 router.use("/recipes", recipes);
 
-
-
 module.exports = router;
+
+// pass boo

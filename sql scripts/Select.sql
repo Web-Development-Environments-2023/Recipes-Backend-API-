@@ -5,7 +5,7 @@ SELECT * FROM FavoriteRecipes;
 
 SELECT * FROM SearchHistory;
 
-SELECT * FROM searchhistory WHERE user_id='admin';
+SELECT * FROM searchhistory WHERE user_id='admin2';
 SELECT * FROM favoriterecipes;
 -- Active: 1685369470042@@127.0.0.1@3306@recipesdb
 CREATE TABLE users (
